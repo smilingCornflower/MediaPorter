@@ -5,7 +5,7 @@ from starlette.responses import PlainTextResponse
 from database import log_download
 from services import Services, clean_youtube_url
 
-app = FastAPI(title="YouTube Downloader")
+app = FastAPI(title="Media Porter")
 
 
 @app.get("/mp3/download")
