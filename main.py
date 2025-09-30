@@ -23,7 +23,8 @@ def download_mp3(url: str = Query(..., description="YouTube URL")):
             headers={"Content-Disposition": 'attachment; filename="download.mp3"'}
         )
     except Exception as e:
-        return PlainTextResponse(content=str(e), status_code=500)
+        print(f"Exception in download_mp3() - {e}")
+        return PlainTextResponse(content="Internal server exception", status_code=500)
 
 
 @app.get("/mp4/download")
@@ -41,4 +42,5 @@ def download_mp4(url: str = Query(..., description="YouTube URL")):
             headers={"Content-Disposition": 'attachment; filename="download.mp4"'}
         )
     except Exception as e:
-        return PlainTextResponse(content=str(e), status_code=500)
+        print(f"Exception in download_mp4() - {e}")
+        return PlainTextResponse(content="Internal server exception", status_code=500)
