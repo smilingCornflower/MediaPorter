@@ -44,3 +44,22 @@ def download_mp4(url: str = Query(..., description="YouTube URL")):
     except Exception as e:
         print(f"Exception in download_mp4() - {e}")
         return PlainTextResponse(content="Internal server exception", status_code=500)
+    
+
+@app.get("/instagram/download")
+def download_instagram(url: str = Query(..., description="Instagram video URL")):
+    try:
+        print(f"{url = }")
+        video_bytes = Services.youtube_downloader.download_instagram(url=url)
+
+        log_download(url=url, fmt='instagram')
+
+        return StreamingResponse(
+            content=video_bytes,
+            media_type="video/mp4",
+            headers={"Content-Disposition": 'attachment; filename="instagram_video.mp4"'}
+        )
+    except Exception as e:
+        print(f"Exception in download_instagram() - {e}")
+        return PlainTextResponse(content="Internal server exception", status_code=500)
+
