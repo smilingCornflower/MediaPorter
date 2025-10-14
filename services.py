@@ -76,6 +76,53 @@ class YoutubeDownloader:
                 data = io.BytesIO(f.read())
                 data.seek(0)
                 return data
+            
+    def download_instagram(self, url: str) -> io.BytesIO:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fmt_opts = {
+                "outtmpl": os.path.join(tmpdir, "%(title)s.%(ext)s"),
+                "format": "best[ext=mp4]/best",
+                "merge_output_format": "mp4",
+                "quiet": True,
+                "noplaylist": False,
+            }
+            opts = self._get_opts(fmt_opts)
+
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                filepath = ydl.prepare_filename(info)
+
+            with open(filepath, "rb") as f:
+                data = io.BytesIO(f.read())
+                data.seek(0)
+                return data
+            
+    def download_instagram_mp3(self, url: str) -> io.BytesIO:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fmt_opts = {
+                "outtmpl": os.path.join(tmpdir, "%(title)s.%(ext)s"),
+                "format": "bestaudio/best",
+                "postprocessors": [
+                    {
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": "mp3",
+                        "preferredquality": "192",
+                    }
+                ],
+                "quiet": True
+            }
+            opts = self._get_opts(fmt_opts)
+
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                filepath = ydl.prepare_filename(info).rsplit(".", 1)[0] + ".mp3"
+
+            with open(filepath, "rb") as f:
+                data = io.BytesIO(f.read())
+                data.seek(0)
+                return data
+
+
 
 
 class Services:
