@@ -1,9 +1,9 @@
 import sqlite3
+from datetime import UTC
 from datetime import datetime
 from pathlib import Path
 from sqlite3 import Connection
-from datetime import UTC
-import config
+
 from config import DB_DSN
 
 DB_PATH = Path(DB_DSN)
@@ -19,6 +19,7 @@ def init_database():
         conn.execute("""
         CREATE TABLE IF NOT EXISTS downloads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            platform TEXT NOT NULL,
             url TEXT NOT NULL,
             format TEXT NOT NULL,
             downloaded_at TEXT NOT NULL
@@ -27,11 +28,11 @@ def init_database():
         print("Database initialized.")
 
 
-def log_download(url: str, fmt: str):
+def log_download(platform: str, url: str, fmt: str):
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute(
-            "INSERT INTO downloads (url, format, downloaded_at) VALUES (?, ?, ?)",
-            (url, fmt, datetime.now(tz=UTC).isoformat())
+            "INSERT INTO downloads (platform, url, format, downloaded_at) VALUES (?, ?, ?, ?)",
+            (platform, url, fmt, datetime.now(tz=UTC).isoformat())
         )
 
 
