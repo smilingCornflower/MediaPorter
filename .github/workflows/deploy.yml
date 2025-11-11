@@ -14,7 +14,6 @@ jobs:
 
       - name: Stop and remove old container
         run: |
-          # получаем ID контейнера, если он запущен
           CONTAINER_ID=$(docker ps -q -f "name=media_porter_container")
           if [ -n "$CONTAINER_ID" ]; then
             docker stop "$CONTAINER_ID"
