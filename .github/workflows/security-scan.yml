@@ -5,7 +5,7 @@ on:
 
 jobs:
   security-scan:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, smilekun-legion]
     steps:
       - uses: actions/checkout@v4
 
@@ -20,15 +20,30 @@ jobs:
           uv sync --frozen
           uv pip install bandit semgrep safety
 
-      - run: uv run bandit -r . -c bandit.yaml -o bandit-report-${{ github.sha }}.json || true
-      - run: uv run pylint . > pylint-report-${{ github.sha }}.txt || true
-      - run: uv run safety check --json --output safety-report-${{ github.sha }}.json || true
+      - name: Prepare reports folder
+        run: |
+          REPORT_DIR=reports/$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA}
+          mkdir -p $REPORT_DIR
+          echo $REPORT_DIR > report_dir.txt
+
+      - name: Run Bandit (SAST)
+        run: |
+          REPORT_DIR=$(cat report_dir.txt)
+          uv run bandit -r . -c bandit.yaml -o $REPORT_DIR/bandit-report.json || true
+
+      - name: Run Pylint (SAST)
+        run: |
+          REPORT_DIR=$(cat report_dir.txt)
+          uv run pylint . > $REPORT_DIR/pylint-report.txt || true
+
+      - name: Run Safety (SCA)
+        run: |
+          REPORT_DIR=$(cat report_dir.txt)
+          uv run safety check --json --output $REPORT_DIR/safety-report.json || true
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-reports
           path: |
-            bandit-report-${{ github.sha }}.json
-            pylint-report-${{ github.sha }}.txt
-            safety-report-${{ github.sha }}.json
+            $(cat report_dir.txt)
