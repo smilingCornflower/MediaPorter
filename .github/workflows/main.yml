@@ -12,3 +12,7 @@ jobs:
 
   docker:
     uses: ./.github/workflows/docker-build.yml
+
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    needs: [security, docker]
