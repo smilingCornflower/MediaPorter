@@ -9,5 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Stop and remove old container
+        run: docker rm -f media_porter_container || true
+
       - name: Run Docker container with .env
         run: docker run -d --name media_porter_container --env DB_DSN="${{ secrets.DB_DSN }}" -p 8000:8000 media_porter:${{ github.sha }}
