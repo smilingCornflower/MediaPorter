@@ -1,0 +1,14 @@
+name: Docker Build
+
+on:
+  workflow_call: {}
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t media_porter:${{ github.sha }} -t media_porter:latest .
