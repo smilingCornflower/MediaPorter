@@ -1,4 +1,4 @@
-name: CI/CD & Security Analysis
+name: Security Scan
 
 on:
   push:
@@ -22,21 +22,21 @@ jobs:
     - name: Install uv
       run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-    - name: Install dependencies and tools
+    - name: Install dependencies
       run: |
-        $HOME/.cargo/bin/uv sync --frozen
-        $HOME/.cargo/bin/uv pip install bandit pylint safety
+        uv sync --frozen
+        uv pip install bandit semgrep safety
 
     - name: Run Bandit (SAST)
-      run: $HOME/.cargo/bin/uv run bandit -r . -f json -o bandit-report.json || true
+      run: uv run bandit -r . -f json -o bandit-report.json || true
 
     - name: Run Pylint (SAST)
-      run: $HOME/.cargo/bin/uv run pylint $(find . -name "*.py") --output-format=json --output=pylint-report.json || true
+      run:  uv run pylint --recursive=y . --output-format=json --output=pylint-report.json
 
     - name: Run Safety (SCA)
-      run: $HOME/.cargo/bin/uv run safety check -r requirements.txt --json --output safety-report.json || true
+      run: uv run safety check --json --output safety-report.json || true
 
-    - name: Upload security reports (Artifacts)
+    - name: Upload reports
       uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -47,5 +47,4 @@ jobs:
           safety-report.json
 
     - name: Build Docker image
-      # Этот шаг будет выполнен после анализа
       run: docker build -t media_porter:latest .
