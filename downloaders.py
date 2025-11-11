@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 import yt_dlp
-
+from pathlib import Path
 from database import log_download
 from enums import PlatformEnum, FormatEnum
 from exceptions import InvalidURLError, FileSizeError, VideoNotFoundError
@@ -117,8 +117,12 @@ class YoutubeDownloader(BaseDownloader):
             opts = self._get_opts(fmt_opts)
 
             with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                filepath = ydl.prepare_filename(info).rsplit(".", 1)[0] + ".mp3"
+                ydl.extract_info(url, download=True)
+
+            mp3_files = list(Path(tmpdir).glob("*.mp3"))
+            if not mp3_files:
+                raise FileNotFoundError("MP3 file not found after conversion")
+            filepath = mp3_files[0]
 
             with open(filepath, "rb") as f:
                 data = io.BytesIO(f.read())
