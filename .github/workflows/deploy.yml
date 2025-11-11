@@ -13,9 +13,5 @@ jobs:
         run: echo "DB_DSN=${{ secrets.DB_DSN }}" > .env
 
       - name: Run Docker container with .env
-        run: docker run -d \
-          --name media_porter_container \
-          --env-file .env \
-          -p 8000:8000 \
-          media_porter:${{ github.sha }}
-        shell: bash
+        run: docker run -d --name media_porter_container --env-file .env -p 8000:8000 media_porter:${{ github.sha }}
+        shell: pwsh
