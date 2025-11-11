@@ -12,15 +12,6 @@ jobs:
       - name: Create .env file
         run: echo "DB_DSN=${{ secrets.DB_DSN }}" > .env
 
-      - name: Stop and remove old container
-        run: |
-          CONTAINER_ID=$(docker ps -q -f "name=media_porter_container")
-          if [ -n "$CONTAINER_ID" ]; then
-            docker stop "$CONTAINER_ID"
-            docker rm "$CONTAINER_ID"
-          fi
-        shell: bash
-
       - name: Run Docker container with .env
         run: docker run -d \
           --name media_porter_container \
