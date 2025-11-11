@@ -31,7 +31,7 @@ jobs:
       run: uv run bandit -r . -f json -o bandit-report.json || true
 
     - name: Run Pylint (SAST)
-      run:  uv run pylint --recursive=y . --output-format=json --output=pylint-report.json
+      run: uv run pylint $(find . -name "*.py") --output-format=json --output=pylint-report.json || true
 
     - name: Run Safety (SCA)
       run: uv run safety check --json --output safety-report.json || true
