@@ -1,0 +1,20 @@
+- name: Create .env file
+  run: |
+    echo "DB_DSN=${{ secrets.DB_DSN }}" >> .env
+
+- name: Pull Docker image
+  run: docker pull media_porter:${{ github.sha }}
+
+- name: Stop and remove old container
+  run: |
+    if docker ps -q -f name=media_porter_container | grep -q .; then
+      docker stop media_porter_container
+      docker rm media_porter_container
+    fi
+
+- name: Run Docker container with .env
+  run: docker run -d \
+    --name media_porter_container \
+    --env-file .env \
+    -p 8000:8000 \
+    media_porter:${{ github.sha }}
