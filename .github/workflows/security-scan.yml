@@ -5,7 +5,7 @@ on:
 
 jobs:
   security-scan:
-    runs-on: [self-hosted, smilekun-legion]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -41,9 +41,9 @@ jobs:
           REPORT_DIR=$(cat report_dir.txt)
           uv run safety check --json --output $REPORT_DIR/safety-report.json || true
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload reports artifact
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-reports
-          path: |
-            $(cat report_dir.txt)
+          path: reports/
