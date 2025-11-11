@@ -28,10 +28,10 @@ jobs:
         uv pip install bandit semgrep safety
 
     - name: Run Bandit (SAST)
-      run: uv run bandit -r . -f json -o bandit-report.json || true
+      run: uv run bandit -r . -c bandit.yaml -o bandit-report.json || true
 
     - name: Run Pylint (SAST)
-      run: uv run pylint $(find . -name "*.py") --output-format=json --output=pylint-report.json || true
+      run: uv run pylint . > pylint-report.txt || true
 
     - name: Run Safety (SCA)
       run: uv run safety check --json --output safety-report.json || true
@@ -43,7 +43,7 @@ jobs:
         name: security-reports
         path: |
           bandit-report.json
-          pylint-report.json
+          pylint-report.txt
           safety-report.json
 
     - name: Build Docker image
