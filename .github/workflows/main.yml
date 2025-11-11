@@ -10,6 +10,9 @@ jobs:
   security:
     uses: ./.github/workflows/security-scan.yml
 
+  download-security-reports:
+    uses: ./.github/workflows/download-security-reports.yml
+
   docker:
     uses: ./.github/workflows/docker-build.yml
 
