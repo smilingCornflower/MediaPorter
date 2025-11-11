@@ -13,9 +13,6 @@ jobs:
         run: |
           echo "DB_DSN=${{ secrets.DB_DSN }}" >> .env
 
-      - name: Pull Docker image
-        run: docker pull media_porter:${{ github.sha }}
-
       - name: Stop and remove old container
         run: |
           if docker ps -q -f name=media_porter_container | grep -q .; then
