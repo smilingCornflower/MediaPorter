@@ -1,0 +1,18 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  security:
+    uses: ./.github/workflows/security-scan.yml
+
+  docker:
+    uses: ./.github/workflows/docker-build.yml
+
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    needs: [security, docker]

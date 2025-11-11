@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  workflow_call: {}
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, smilekun-legion]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ] || [ "$RUNNER_OS" = "macOS" ]; then
+              echo "DB_DSN=${{ secrets.DB_DSN }}" > .env
+          else
+              cmd /c "chcp 65001 > nul && echo DB_DSN=${{ secrets.DB_DSN }} > .env"
+          fi
+
+      - name: Run Docker container with .env
+        run: docker run -d --name media_porter_container --env-file .env -p 8000:8000 media_porter:${{ github.sha }}

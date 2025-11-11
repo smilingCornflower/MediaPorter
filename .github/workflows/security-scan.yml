@@ -1,0 +1,49 @@
+name: Security Scan
+
+on:
+  workflow_call: { }
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - run: |
+          uv sync --frozen
+          uv pip install bandit semgrep safety
+
+      - name: Prepare reports folder
+        run: |
+          REPORT_DIR=reports/$(date -u +%Y%m%d-%H%M%S)-${GITHUB_SHA}
+          mkdir -p $REPORT_DIR
+          echo $REPORT_DIR > report_dir.txt
+
+      - name: Run Bandit (SAST)
+        run: |
+          REPORT_DIR=$(cat report_dir.txt)
+          uv run bandit -r . -c bandit.yaml -o $REPORT_DIR/bandit-report.json || true
+
+      - name: Run Pylint (SAST)
+        run: |
+          REPORT_DIR=$(cat report_dir.txt)
+          uv run pylint . > $REPORT_DIR/pylint-report.txt || true
+
+      - name: Run Safety (SCA)
+        run: |
+          REPORT_DIR=$(cat report_dir.txt)
+          uv run safety check --json --output $REPORT_DIR/safety-report.json || true
+
+      - name: Upload reports artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: reports/
